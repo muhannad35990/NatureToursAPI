@@ -60,6 +60,10 @@ const tourSchema = new mongoose.Schema(
       // select: false,//to hide this field permenently
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     //options
@@ -91,5 +95,25 @@ tourSchema.pre('save', function (next) {
 //   console.log(doc);
 //   next();
 // });
+
+//Query middleware
+//find not work for findOne to solve for all find (findOne,findandUpdate,findAndDelete)use reqular expression
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+
+  next();
+});
+tourSchema.post(/^find/, function (docs, next) {
+  // console.log(docs);
+  next();
+});
+
+//Aggregation middleware
+tourSchema.pre('aggregate', function (next) {
+  //adding another filter to the begining of the pipeline array
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+
+  next();
+});
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
