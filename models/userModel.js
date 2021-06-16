@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -40,6 +41,8 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: { type: Date, default: new Date() },
+  passwordRestToken: String,
+  passwordResetExpires: Date,
 });
 
 //using document middleware on save to encrypt the password
@@ -72,6 +75,17 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
     return changedTimestamp > JWTTimestamp; //check if password changed after issue the jwt
   } else return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordRestToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  console.log({ resetToken }, this.passwordRestToken);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //after 10 min
+  return resetToken; //send non encrypted token to th email
 };
 
 const User = mongoose.model('User', userSchema);
