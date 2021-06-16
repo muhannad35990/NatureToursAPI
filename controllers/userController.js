@@ -1,8 +1,11 @@
-exports.getAllUsers = (req, res) => {
-  res
-    .status(200)
-    .json({ date: req.requestTime.toISOString(), status: 'from Users' });
-};
+const catchAsync = require('../utils/catchAsync');
+const User = require('../models/userModel');
+
+exports.getAllUsers = catchAsync(async (req, res) => {
+  const users = await User.find();
+  res.status(200).json({ status: 'success', users });
+});
+
 exports.getUser = (req, res) => {
   res
     .status(200)

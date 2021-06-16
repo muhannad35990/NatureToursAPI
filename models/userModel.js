@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-var validator = require('validator');
+const validator = require('validator');
 const bcrypt = require('bcryptjs');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'user must have a password'],
     minlength: 8,
+    select: false, //never show the passowrd in the response
   },
   passwordConfirm: {
     type: String,
@@ -32,6 +34,7 @@ const userSchema = new mongoose.Schema({
       message: 'passwords does not match',
     },
   },
+  passwordChangedAt: { type: Date, default: new Date() },
 });
 
 //using document middleware on save to encrypt the password
@@ -44,6 +47,27 @@ userSchema.pre('save', async function (next) {
 
   //delete the passwordConfirm to not save in the database
   this.passwordConfirm = undefined;
+  next();
 });
+
+//instance method to check if the password is correct
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    return changedTimestamp > JWTTimestamp; //check if password changed after issue the jwt
+  } else return false;
+};
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;
