@@ -84,7 +84,18 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('User recently changed password! Please log in again', 401)
     );
   }
-  //at this point grant access to protected Route
+  //at this point grant access to protected Route , add user data  to the request
   req.user = freshUser;
   next();
 });
+
+//can not pass parameters to middleware so wrap it into another function
+exports.restrictTo =
+  (...rols) =>
+  (req, res, next) => {
+    if (!rols.includes(req.user.role))
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    next();
+  };
