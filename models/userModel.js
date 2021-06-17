@@ -40,9 +40,9 @@ const userSchema = new mongoose.Schema({
       message: 'passwords does not match',
     },
   },
-  passwordChangedAt: { type: Date, default: new Date() },
-  passwordRestToken: String,
-  passwordResetExpires: Date,
+  passwordChangedAt: { type: Date, default: new Date(), select: false },
+  passwordRestToken: { type: String, select: false },
+  passwordResetExpires: { type: Date, select: false },
   active: {
     type: Boolean,
     default: true,
