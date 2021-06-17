@@ -57,7 +57,12 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
-
+//update changedPasswordAt property for the user after reseting the password
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000; //coz issing the token sometimes get faster than changing the date so to insure that the date is after issing the token we subtract 1s
+  next();
+});
 //instance method to check if the password is correct
 userSchema.methods.correctPassword = async function (
   candidatePassword,
