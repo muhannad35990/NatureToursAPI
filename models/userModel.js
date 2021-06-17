@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: { type: Date, default: new Date() },
   passwordRestToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 //using document middleware on save to encrypt the password
@@ -61,6 +66,12 @@ userSchema.pre('save', async function (next) {
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
   this.passwordChangedAt = Date.now() - 1000; //coz issing the token sometimes get faster than changing the date so to insure that the date is after issing the token we subtract 1s
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  //this points to current query so we return only active:true
+  this.find({ active: { $ne: false } });
   next();
 });
 //instance method to check if the password is correct
