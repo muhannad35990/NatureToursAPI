@@ -14,7 +14,7 @@ const createSendToken = (user, statusCode, res) => {
   //generate new token
   const token = signToken(user._id);
   //send the token to client if everything is ok
-
+  user.password = undefined; //remove the password
   res.status(statusCode).json({
     status: 'success',
     token,
