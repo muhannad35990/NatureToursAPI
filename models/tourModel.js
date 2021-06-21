@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-var slugify = require('slugify');
-var validator = require('validator');
+let slugify = require('slugify');
+// let  validator = require('validator');
+// const User = require('./userModel');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -80,6 +82,33 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      //embedde object
+      //GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number], //array of numbers ,lat long
+      address: String,
+      description: String,
+    },
+    locations: [
+      //array of objects
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], //link to user schema by reference
   },
   {
     //options
@@ -102,6 +131,15 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
+//embedding users with full information in the tours doc, this work only on creating and not on updating
+// tourSchema.pre('save', async function (next) {
+//   //array of users Id
+//   this.guides = await Promise.all(
+//     this.guides.map(async (id) => await User.findById(id))
+//   ); //array of promises so we wait on all of them
+//   next();
+// });
+
 // tourSchema.pre('save', function (next) {
 //   console.log('the seconde middleware');
 //   next();
@@ -117,6 +155,14 @@ tourSchema.pre('save', function (next) {
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
 
+  next();
+});
+//to add population of tour with guides in the user model for all queries starts with find
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v',
+  });
   next();
 });
 tourSchema.post(/^find/, function (docs, next) {
