@@ -110,6 +110,7 @@ const tourSchema = new mongoose.Schema(
     ],
     guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }], //link to user schema by reference
   },
+
   {
     //options
     //excplicitly tell to show virtual proberties
@@ -123,6 +124,12 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+//virtual populate of tours to get all reviews beacause we use parent referencing so tour does not know about the children
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', //id field in the review model that point to the tour
+  localField: '_id', //id of the tour in the tour model
+});
 //Document middleware: runs before .save() and .create() only
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, {
@@ -165,6 +172,7 @@ tourSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
 tourSchema.post(/^find/, function (docs, next) {
   // console.log(docs);
   next();

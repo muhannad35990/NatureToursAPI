@@ -33,7 +33,7 @@ const server = app.listen(process.env.PORT || 3000, () =>
 
 //handle unhandled rejection
 process.on('unhandledRejection', (err) => {
-  console.log(err.name, err.message);
+  console.log(err);
   console.log('Unhandled Rejection!💥 Shutting down ...');
 
   //give the server time to finish all requests
