@@ -123,6 +123,7 @@ const tourSchema = new mongoose.Schema(
 //1 for to sort it asc,-1 desc, added more than one field (compund )
 //index the field that moslty query
 tourSchema.index({ price: 1, ratingAverage: -1 });
+tourSchema.index({ slug: 1 });
 
 //adding virtual proberty not saved in the database
 tourSchema.virtual('durationWeeks').get(function () {
