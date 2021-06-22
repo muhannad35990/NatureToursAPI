@@ -8,13 +8,14 @@ const {
   deleteReview,
 } = require('../controllers/reviewController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true }); //mergeParams allow to access to tourId in the other router
 
-router.route('/').get(protect, getAllReviews).post(createReview);
+//POST /tour/234sdf23/reviews is the same as  POST /reviews
+router.route('/').get(protect, getAllReviews).post(protect, createReview);
 router
   .route('/:id')
-  .get(getReview)
-  .patch(updateReview)
-  .delete(protect, restrictTo('admin', 'lead-guide', 'user'), deleteReview);
+  .get(protect, getReview)
+  .patch(protect, updateReview)
+  .delete(protect, restrictTo('user'), deleteReview);
 
 module.exports = router;
