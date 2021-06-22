@@ -10,6 +10,7 @@ const {
   getMonthlyPlan,
 } = require('../controllers/tourController');
 const { protect, restrictTo } = require('../controllers/authController');
+const reviewController = require('../controllers/reviewController');
 
 const router = express.Router();
 //Middleware check if there is id in the request parameters
@@ -28,4 +29,9 @@ router
   .patch(updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
+//POST GET /tour/23432dsfdsf342/reviews
+router
+  .route('/:tourId/reviews')
+  .get(protect, restrictTo('user'), reviewController.getReview)
+  .post(protect, restrictTo('user'), reviewController.createReview);
 module.exports = router;
