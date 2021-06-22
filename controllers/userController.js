@@ -10,10 +10,6 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
-exports.getAllUsers = catchAsync(async (req, res) => {
-  const users = await User.find();
-  res.status(200).json({ status: 'success', users });
-});
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   //create error if user posted password data
@@ -43,17 +39,14 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = (req, res) => {
-  res
-    .status(200)
-    .json({ status: 'fail', data: 'this route is not yet defiend' });
-};
-
 exports.createUser = (req, res) => {
-  res
-    .status(200)
-    .json({ date: req.requestTime.toISOString(), status: 'from Users' });
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not defined! please uesr /signUp instead',
+  });
 };
 
+exports.getAllUsers = factory.getAll(User);
+exports.getUser = factory.getOne(User); //you can add select in the populte obejct
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
