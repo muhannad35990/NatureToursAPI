@@ -12,14 +12,16 @@ const {
 const router = express.Router({ mergeParams: true }); //mergeParams allow to access to tourId in the other router
 
 //POST /tour/234sdf23/reviews is the same as  POST /reviews
+//protect all the rest of routes
+router.use(protect);
 router
   .route('/')
-  .get(protect, getAllReviews)
-  .post(protect, restrictTo('user'), setTourUserIds, createReview);
+  .get(getAllReviews)
+  .post(restrictTo('user'), setTourUserIds, createReview);
 router
   .route('/:id')
-  .get(protect, getReview)
-  .patch(protect, updateReview)
-  .delete(protect, deleteReview);
+  .get(getReview)
+  .patch(restrictTo('user', 'admin'), updateReview)
+  .delete(restrictTo('user', 'admin'), deleteReview);
 
 module.exports = router;
