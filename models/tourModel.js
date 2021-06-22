@@ -118,6 +118,11 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true }, //when data output as object
   }
 );
+
+//add indexing to the price field to make the seach faster on this field
+//1 for to sort it asc,-1 desc, added more than one field (compund )
+tourSchema.index({ price: 1, ratingAverage: -1 });
+
 //adding virtual proberty not saved in the database
 tourSchema.virtual('durationWeeks').get(function () {
   //arrow function does not have access to this keyword so use reqular function
