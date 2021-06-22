@@ -10,7 +10,11 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
-
+exports.getMe = (req, res, next) => {
+  //middleware to midify the id before call getOne to get the current user information
+  req.params.id = req.user.id;
+  next();
+};
 exports.updateMe = catchAsync(async (req, res, next) => {
   //create error if user posted password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -21,6 +25,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       )
     );
   }
+
   //update user
   const filteredBody = filterObj(req.body, 'name', 'email'); //keep only these fields to be allowed to update
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
