@@ -127,6 +127,7 @@ const tourSchema = new mongoose.Schema(
 //index the field that moslty query
 tourSchema.index({ price: 1, ratingAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' }); //indexing geo location use 2d indexing point
 
 //adding virtual proberty not saved in the database
 tourSchema.virtual('durationWeeks').get(function () {
