@@ -1,7 +1,64 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
+
+const multerStorage = multer.memoryStorage(); //store image in buffer
+//filter for multer to test if the uploaded file is image
+const multerFilter = (re1, file, cb) => {
+  if (file.mimetype.startsWith('image')) cb(null, true);
+  else cb(new AppError('Not and image! Please upload only images', 400), false);
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+//middleware to upload 1 cover and 3 images for each tour
+//in case do not have cover and only want to upload multiple images
+// upload.array('iamges', 5);
+//when it's one image
+// upload.single('image'); req.file
+//when there is mix of them suer upload.fields   req.files
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+exports.resizeTourImages = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  //process cover image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333) //resize with cover option 3/2 ratio
+    .toFormat('jpeg') //convert to jpeg
+    .jpeg({ quality: 90 }) //compress
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  //process rest images array by loop
+  req.body.images = [];
+  //using promise to force it stop until all loop operations finish
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+      await sharp(file.buffer)
+        .resize(2000, 1333) //resize with cover option 3/2 ratio
+        .toFormat('jpeg') //convert to jpeg
+        .jpeg({ quality: 90 }) //compress
+        .toFile(`public/img/tours/${filename}`);
+
+      req.body.images.push(filename);
+    })
+  );
+
+  next();
+});
+
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingAverage,price';

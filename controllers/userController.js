@@ -30,17 +30,17 @@ const upload = multer({
 
 exports.uploadUserPhoto = upload.single('photo');
 //resize uploaded image to make it square
-exports.resizeUserPhoto = (req, res, next) => {
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500) //resize with cover option
     .toFormat('jpeg') //convert to jpeg
     .jpeg({ quality: 90 }) //compress
     .toFile(`public/img/users/${req.file.filename}`);
   next();
-};
+});
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
