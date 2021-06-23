@@ -107,3 +107,37 @@ exports.getToursWithIn = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+  if (!lat || !lng)
+    next(
+      new AppError(
+        'Please provide latitude and longitude in the format lat,lng',
+        400
+      )
+    );
+
+  const distances = await Tour.aggregate([
+    {
+      //always need to be the first stage and need to be geo spatial index
+      $geoNear: {
+        near: { type: 'Point', coordinates: [lng * 1, lat * 1] }, //to convert to number *1
+        distanceField: 'distance', //name of the field of the calculated distances
+        distanceMultiplier: multiplier, //to convert to km or mile
+      },
+    },
+    {
+      $project: { distance: 1, name: 1 },
+    },
+  ]);
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: distances,
+    },
+  });
+});
