@@ -31,6 +31,11 @@ const reviewSchema = new mongoose.Schema(
     toObject: { virtuals: true }, //when data output as object
   }
 );
+
+//prevent user from postng multiple reviews for the same tour
+//add compound index and make the combination unique
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewSchema.pre(/^find/, function (next) {
   // this.populate({
   //   path: 'user',
