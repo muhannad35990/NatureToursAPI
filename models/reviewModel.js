@@ -63,16 +63,43 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ]);
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingAverage: stats[0].avgRating,
-    ratingQantity: stats[0].nRating,
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingAverage: stats[0].avgRating,
+      ratingQantity: stats[0].nRating,
+    });
+  } else {
+    //get back to the defaults
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingAverage: 4.5,
+      ratingQantity: 0,
+    });
+  }
 };
 
 //middleware to update call updating statistic and save to the doc in the Tour
 reviewSchema.post('save', function () {
-  //this points to current review , coz we do not have access yet the the Review Model we use constructor to get around
-  this.constructor.calcAverageRatings(this.tour); //call the static method to calclate
+  //this points to current review ,
+  // coz we do not have access yet the the Review Model we use constructor to get around
+  //call the static method to calclate
+  this.constructor.calcAverageRatings(this.tour);
 });
+
+//findByIdAndUpdate , findByIdAndDelete ,to update staticstics when update or delete review
+//these queries uses findOneAnd to work so we use middleware to hook it
+//here we only get the doc form the database and pass it to the next middleware
+//next we will calculate the stat in post middleware
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+  //coz this here point to the current query so we need to get the current doc
+  this.r = await this.findOne();
+
+  next();
+});
+reviewSchema.post(/^findOneAnd/, async function () {
+  //await this.findOne()//does not work here because the query has already executed
+  //calculate stat depending on the data we got in the pre middleware
+  await this.r.constructor.calcAverageRatings(this.r.tour);
+});
+
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
