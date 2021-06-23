@@ -1,7 +1,32 @@
+const multer = require('multer');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    //path to where to save user images , if not specified path it will save it in the memory
+    cb(null, 'public/img/users'); //null mean no error
+  },
+  filename: (req, file, cb) => {
+    //user-32434224-234234234.jpeg
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+//filter for multer to test if the uploaded file is image
+const multerFilter = (re1, file, cb) => {
+  if (file.mimetype.startsWith('image')) cb(null, true);
+  else cb(new AppError('Not and image! Please upload only images', 400), false);
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadUserPhoto = upload.single('photo');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -28,6 +53,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   //update user
   const filteredBody = filterObj(req.body, 'name', 'email'); //keep only these fields to be allowed to update
+  //add photo if uploaded one
+  if (req.file) filteredBody.photo = req.file.filename;
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     //new:true to return the updated doc not the old one
     new: true,

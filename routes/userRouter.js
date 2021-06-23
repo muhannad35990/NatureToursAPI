@@ -18,6 +18,7 @@ const {
   updateMe,
   deleteMe,
   getMe,
+  uploadUserPhoto,
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -33,7 +34,7 @@ router.use(protect);
 
 router.patch('/updateMyPassword', updatePassword);
 
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, updateMe); //upload.signle upload single file
 router.delete('/deleteMe', deleteMe);
 router.get('/getMe', getMe, getUser);
 
