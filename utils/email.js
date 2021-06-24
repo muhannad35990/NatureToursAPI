@@ -12,8 +12,18 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      //sendgrid
-      return 1;
+      //sendgrid or mailgun
+
+      return nodemailer.createTransport({
+        service: 'Mailgun',
+        auth: {
+          user: process.env.MAILGUN_USERNAME,
+          pass: process.env.MAILGUN_PASSWORD,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
     }
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
