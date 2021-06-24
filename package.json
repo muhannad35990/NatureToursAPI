@@ -29,6 +29,7 @@
     "nodemailer": "^6.6.1",
     "sharp": "^0.28.3",
     "slugify": "^1.5.3",
+    "stripe": "^8.156.0",
     "validator": "^13.6.0",
     "xss-clean": "^0.1.1"
   },
