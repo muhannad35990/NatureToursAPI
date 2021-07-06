@@ -66,7 +66,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   //update user
-  const filteredBody = filterObj(req.body, 'name', 'email'); //keep only these fields to be allowed to update
+  const filteredBody = filterObj(req.body, 'FirstName', 'LastName', 'email'); //keep only these fields to be allowed to update
   //add photo if uploaded one
   if (req.file) filteredBody.photo = req.file.filename;
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
