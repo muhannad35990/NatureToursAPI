@@ -12,18 +12,32 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      //sendgrid or mailgun
+      //sendgrid or mailgun or gmail
 
       return nodemailer.createTransport({
-        service: 'Mailgun',
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: '587',
         auth: {
-          user: process.env.MAILGUN_USERNAME,
-          pass: process.env.MAILGUN_PASSWORD,
+          user: process.env.GMAIL_EMAIL_USERNAME,
+          pass: process.env.GMAIL_EMAIL_PASSWORD,
         },
+        secureConnection: 'false',
         tls: {
+          ciphers: 'SSLv3',
           rejectUnauthorized: false,
         },
       });
+      // return nodemailer.createTransport({
+      //   service: 'Mailgun',
+      //   auth: {
+      //     user: process.env.MAILGUN_USERNAME,
+      //     pass: process.env.MAILGUN_PASSWORD,
+      //   },
+      //   tls: {
+      //     rejectUnauthorized: false,
+      //   },
+      // });
     }
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
@@ -57,7 +71,16 @@ module.exports = class Email {
     };
 
     //create transport and send email
-    await this.newTransport().sendMail(mailOptions);
+    // await this.newTransport().sendMail(mailOptions);
+    await this.newTransport().sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        return false;
+      } else {
+        console.log('Email sent: ' + info.response);
+        return true;
+      }
+    });
   }
 
   async sendWelcome() {
@@ -65,7 +88,7 @@ module.exports = class Email {
   }
 
   async sendPasswordReset() {
-    await this.send(
+    return await this.send(
       'passwordReset',
       'Your Password Reset Token(valid for only 10 minutes)'
     );

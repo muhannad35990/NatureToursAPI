@@ -10,13 +10,14 @@ const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, message, res) => {
   //generate new token
   const token = signToken(user._id);
   //send the token to client if everything is ok
   user.password = undefined; //remove the password
   res.status(statusCode).json({
     status: 'success',
+    message,
     token,
     data: {
       user,
@@ -25,7 +26,10 @@ const createSendToken = (user, statusCode, res) => {
 };
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-  const url = `${req.protocol}://${req.get('host')}/me`;
+  //in production
+  // const url = `${req.protocol}://${req.get('host')}/me`;
+  //in local
+  const url = `http://localhost:3001/me`;
   await new Email(newUser, url).sendWelcome();
   // const refreshToken = jwt.sign(
   //   { id: newUser._id },
@@ -34,7 +38,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   //     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   //   }
   // );
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, 'user created successfully', res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -52,7 +56,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, 'user login success!', res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -113,12 +117,20 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   try {
     //send it to user's email
-    const resetURL = `${req.protocol}://${req.get(
-      'host'
-    )}/api/v1/users/resetPassword/${resetToken}`;
+    //on production
+    // const resetURL = `${req.protocol}://${req.get(
+    //   'host'
+    // )}/api/v1/users/resetPassword/${resetToken}`;
+
+    //for local
+    const resetURL = `http://localhost:3001/resetPassword/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
-    res.status(200).json({ status: 'success', message: 'Token sent to email' });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Please check your email ,link sent to reset your password',
+    });
   } catch (err) {
     user.passwordRestToken = undefined;
     user.passwordResetExpires = undefined;
@@ -152,7 +164,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //log the user in ,send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, 'Password reset success!', res);
 
   next();
 });
@@ -171,5 +183,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
   //log in user and send new token
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, 'Password updated successfully!', res);
 });
