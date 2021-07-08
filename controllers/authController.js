@@ -74,7 +74,10 @@ exports.autologin = catchAsync(async (req, res, next) => {
   try {
     if (!refreshToken) {
       return next(
-        new AppError('Please provide refresh token or login again', 400)
+        new AppError(
+          "Can't auto login , Please login using username and password",
+          400
+        )
       );
     }
     //check if refresh token is still valid
@@ -126,28 +129,35 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
   if (!token)
     return next(new AppError('You are not logged in to get access.', 401));
+  try {
+    //verification token
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  //verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  //check if the user still exists and not deleted in the meanTime
-  const freshUser = await User.findById(decoded.id);
-  if (!freshUser)
-    return next(
-      new AppError(
-        'The user belonging to this token does no longer exists.',
-        401
-      )
-    );
-  //check if user change password after jwt was issued
-  if (freshUser.changedPasswordAfter(decoded.iat)) {
-    return next(
-      new AppError('User recently changed password! Please log in again', 401)
-    );
+    //check if the user still exists and not deleted in the meanTime
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser)
+      return next(
+        new AppError(
+          'The user belonging to this token does no longer exists.',
+          401
+        )
+      );
+    //check if user change password after jwt was issued
+    if (freshUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError('User recently changed password! Please log in again', 401)
+      );
+    }
+    //at this point grant access to protected Route , add user data  to the request
+    req.user = freshUser;
+    next();
+  } catch (e) {
+    if (e instanceof jwt.TokenExpiredError) {
+      return next(
+        new AppError('The Token Expired ,try to refresh or again again.', 401)
+      );
+    }
   }
-  //at this point grant access to protected Route , add user data  to the request
-  req.user = freshUser;
-  next();
 });
 
 //can not pass parameters to middleware so wrap it into another function
