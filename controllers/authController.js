@@ -14,7 +14,7 @@ const refreshSignToken = (id) =>
   jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   });
-const createSendToken = async (user, statusCode, message, res) => {
+const createSendToken = async (user, statusCode, message, status, res) => {
   //refresh token
 
   const refreshToken = refreshSignToken(user._id);
@@ -33,7 +33,7 @@ const createSendToken = async (user, statusCode, message, res) => {
   //send the token to client if everything is ok
   user.password = undefined; //remove the password
   res.status(statusCode).json({
-    status: 'success',
+    status: !status ? 'success' : null,
     message,
     token,
     refreshToken,
@@ -66,7 +66,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
-  createSendToken(user, 200, 'user login success!', res);
+  createSendToken(user, 200, '', res);
 });
 
 exports.autologin = catchAsync(async (req, res, next) => {
@@ -109,7 +109,7 @@ exports.autologin = catchAsync(async (req, res, next) => {
       return next(new AppError('Incorrect refresh token', 401));
     }
 
-    createSendToken(freshUser, 200, 'user login success!', res);
+    createSendToken(freshUser, 200, '', '', res);
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       return next(
