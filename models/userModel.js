@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema({
       message: 'passwords does not match',
     },
   },
+  refreshToken: { type: String, select: false },
   passwordChangedAt: { type: Date, default: new Date(), select: false },
   passwordRestToken: { type: String, select: false },
   passwordResetExpires: { type: Date, select: false },
@@ -77,14 +78,33 @@ userSchema.pre('save', function (next) {
 userSchema.pre(/^find/, function (next) {
   //this points to current query so we return only active:true
   this.find({ active: { $ne: false } });
+
   next();
 });
+userSchema.pre(/^findOneAnd/, async function (next) {
+  //Encrypt refresh Token
+  if (this._update.refreshToken)
+    this._update.refreshToken = await bcrypt.hash(
+      this._update.refreshToken,
+      12
+    );
+  next();
+});
+
 //instance method to check if the password is correct
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return bcrypt.compare(candidatePassword, userPassword);
+};
+
+//instance method to check if the refresh token is correct
+userSchema.methods.correctRefreshToken = async function (
+  candidateRefreshToken,
+  userRefreshToken
+) {
+  return bcrypt.compare(candidateRefreshToken, userRefreshToken);
 };
 
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
@@ -95,7 +115,8 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     );
 
     return changedTimestamp > JWTTimestamp; //check if password changed after issue the jwt
-  } else return false;
+  }
+  return false;
 };
 
 userSchema.methods.createPasswordResetToken = function () {

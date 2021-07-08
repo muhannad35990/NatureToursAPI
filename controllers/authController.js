@@ -10,7 +10,24 @@ const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-const createSendToken = (user, statusCode, message, res) => {
+const refreshSignToken = (id) =>
+  jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+  });
+const createSendToken = async (user, statusCode, message, res) => {
+  //refresh token
+
+  const refreshToken = refreshSignToken(user._id);
+
+  //save refresh token in the database
+  const doc = await User.findByIdAndUpdate(
+    user._id,
+    { refreshToken: refreshToken },
+    {
+      new: true,
+    }
+  );
+
   //generate new token
   const token = signToken(user._id);
   //send the token to client if everything is ok
@@ -19,9 +36,8 @@ const createSendToken = (user, statusCode, message, res) => {
     status: 'success',
     message,
     token,
-    data: {
-      user,
-    },
+    refreshToken,
+    user: doc,
   });
 };
 exports.signup = catchAsync(async (req, res, next) => {
@@ -31,13 +47,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   //in local
   const url = `http://localhost:3001/me`;
   await new Email(newUser, url).sendWelcome();
-  // const refreshToken = jwt.sign(
-  //   { id: newUser._id },
-  //   process.env.REFRESH_TOKEN_SECRET,
-  //   {
-  //     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-  //   }
-  // );
+
   createSendToken(newUser, 201, 'user created successfully', res);
 });
 
@@ -59,6 +69,52 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, 'user login success!', res);
 });
 
+exports.autologin = catchAsync(async (req, res, next) => {
+  const { refreshToken } = req.body;
+  try {
+    if (!refreshToken) {
+      return next(
+        new AppError('Please provide refresh token or login again', 400)
+      );
+    }
+    //check if refresh token is still valid
+    //verification token
+
+    const decoded = await promisify(jwt.verify)(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    //check if the user still exists and not deleted in the meanTime
+    const freshUser = await User.findById(decoded.id).select('+refreshToken');
+    if (!freshUser)
+      return next(
+        new AppError(
+          'The user belonging to this token does no longer exists.',
+          401
+        )
+      );
+
+    //get the user referesh token saved
+    if (
+      !freshUser ||
+      !(await freshUser.correctRefreshToken(
+        refreshToken,
+        freshUser.refreshToken
+      ))
+    ) {
+      return next(new AppError('Incorrect refresh token', 401));
+    }
+
+    createSendToken(freshUser, 200, 'user login success!', res);
+  } catch (e) {
+    if (e instanceof jwt.TokenExpiredError) {
+      return next(
+        new AppError('The refresh Token Expired ,try login again.', 401)
+      );
+    }
+  }
+});
 exports.protect = catchAsync(async (req, res, next) => {
   //getting token and check if it's exists
   let token;
