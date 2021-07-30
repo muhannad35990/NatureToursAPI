@@ -14,7 +14,7 @@ const refreshSignToken = (id) =>
   jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   });
-const createSendToken = async (user, statusCode, message, status, res) => {
+const createSendToken = async (user, statusCode, message, res) => {
   //refresh token
 
   const refreshToken = refreshSignToken(user._id);
@@ -33,7 +33,7 @@ const createSendToken = async (user, statusCode, message, status, res) => {
   //send the token to client if everything is ok
   user.password = undefined; //remove the password
   res.status(statusCode).json({
-    status: !status ? 'success' : null,
+    status: 'success',
     message,
     token,
     refreshToken,
@@ -64,13 +64,14 @@ exports.login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Incorrect email or password', 401));
+    return next(new AppError('Incorrect email or password', 400));
   }
-  createSendToken(user, 200, '', res);
+  createSendToken(user, 200, 'logged in success!', res);
 });
 
 exports.autologin = catchAsync(async (req, res, next) => {
   const { refreshToken } = req.body;
+
   try {
     if (!refreshToken) {
       return next(
@@ -89,8 +90,8 @@ exports.autologin = catchAsync(async (req, res, next) => {
     );
 
     //check if the user still exists and not deleted in the meanTime
-    const freshUser = await User.findById(decoded.id).select('+refreshToken');
-    if (!freshUser)
+    const user = await User.findById(decoded.id).select('+refreshToken');
+    if (!user)
       return next(
         new AppError(
           'The user belonging to this token does no longer exists.',
@@ -100,16 +101,13 @@ exports.autologin = catchAsync(async (req, res, next) => {
 
     //get the user referesh token saved
     if (
-      !freshUser ||
-      !(await freshUser.correctRefreshToken(
-        refreshToken,
-        freshUser.refreshToken
-      ))
+      !user ||
+      !(await user.correctRefreshToken(refreshToken, user.refreshToken))
     ) {
       return next(new AppError('Incorrect refresh token', 401));
     }
 
-    createSendToken(freshUser, 200, '', '', res);
+    createSendToken(user, 200, 'Auto login success!', res);
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       return next(

@@ -6,19 +6,13 @@ const crypto = require('crypto');
 const userSchema = new mongoose.Schema({
   FirstName: {
     type: String,
-<<<<<<< HEAD
+
     required: [true, 'A user must have a first name'],
   },
-  LastName: {
-    type: String,
-    required: [true, 'A user must have a last name'],
-=======
-    required: [true, 'A user must have first name'],
-  },
+
   LastName: {
     type: String,
     required: [true, 'A user must have last name'],
->>>>>>> 180942e2af06a18f726c4013ef49877473e4a6f5
   },
   email: {
     type: String,
