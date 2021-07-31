@@ -152,7 +152,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       return next(
-        new AppError('The Token Expired ,try to refresh or again again.', 401)
+        new AppError('The Token Expired ,try to refresh or login again.', 401)
       );
     }
   }
@@ -234,18 +234,34 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  //get the user
-  const user = await User.findById(req.user.id).select('+password');
+  try {
+    const { passwordConfirm, passwordCurrent, password } = req.body;
 
-  //check if posted current password is correct
-  if (!user.correctPassword(req.body.passwordCurrent, user.password))
-    return next(new AppError('Your current password is incorrect', 401));
+    if (passwordConfirm && passwordCurrent && password) {
+      //get the user
+      const user = await User.findById(req.user.id).select('+password');
 
-  //update the password
-  user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
-  await user.save();
-  //log in user and send new token
+      //check if posted current password is correct
+      if (!user.correctPassword(passwordCurrent, user.password))
+        return next(new AppError('Your current password is incorrect', 401));
 
-  createSendToken(user, 200, 'Password updated successfully!', res);
+      //update the password
+      user.password = password;
+      user.passwordConfirm = passwordConfirm;
+      await user.save();
+      //log in user and send new token
+
+      createSendToken(user, 200, 'Password updated successfully!', res);
+    } else {
+      return next(new AppError('check the data is valid and try again', 500));
+    }
+  } catch (err) {
+    return next(
+      new AppError(
+        'there an error while changing the password,check the data and try again' +
+          err,
+        500
+      )
+    );
+  }
 });
