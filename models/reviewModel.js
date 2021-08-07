@@ -47,7 +47,7 @@ reviewSchema.pre(/^find/, function (next) {
   //no need to populate the tour not overlap the data when get tour and populate with reviews
   this.populate({
     path: 'user',
-    select: 'name',
+    select: 'name photo',
   });
   next();
 });
