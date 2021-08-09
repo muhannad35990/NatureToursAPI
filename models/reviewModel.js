@@ -50,7 +50,7 @@ reviewSchema.pre(/^find/, function (next) {
     select: 'name photo',
   }).populate({
     path: 'tour',
-    select: 'duration difficulty price ratingAverage imageCover',
+    select: 'name duration difficulty price ratingAverage imageCover',
   });
   next();
 });
