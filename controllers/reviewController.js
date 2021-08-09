@@ -5,6 +5,7 @@ exports.setTourUserIds = (req, res, next) => {
   //add tour id aand user id
   //allow nested routes
   if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.params.userId;
   if (!req.body.user) req.body.user = req.user.id;
   next();
 };

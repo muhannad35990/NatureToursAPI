@@ -8,15 +8,19 @@ const {
   getBooking,
   deleteBooking,
 } = require('../controllers/bookingController');
+const { setTourUserIds } = require('../controllers/reviewController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.use(protect);
 
 router.route('/checkout-session/:tourID').post(getCheckoutSession);
 
 router.use(restrictTo('lead-guide', 'admin'));
-router.route('/').get(getAllBookings).post(restrictTo('user'), createBooking);
+router
+  .route('/')
+  .get(setTourUserIds, getAllBookings)
+  .post(restrictTo('user'), createBooking);
 router
   .route('/:id')
   .get(getBooking)

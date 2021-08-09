@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 //define how many req by Ip allowed by certin amount of time
 const limiter = rateLimit({
-  max: 100, //allow 100 req by hour
+  max: 500, //allow 100 req by hour
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP please try again in an hour!',
 });

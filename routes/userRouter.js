@@ -22,6 +22,8 @@ const {
   uploadUserPhoto,
   resizeUserPhoto,
 } = require('../controllers/userController');
+const reviewRouter = require('./reviewRoutes');
+const bookingRouter = require('./bookingRoutes');
 
 const router = express.Router();
 
@@ -41,6 +43,9 @@ router.patch('/updateMyPassword', updatePassword);
 router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe); //upload.signle upload single file
 router.delete('/deleteMe', deleteMe);
 router.get('/getMe', getMe, getUser);
+
+router.use('/:userId/reviews', reviewRouter); //re-routing to review router to handle
+router.use('/:userId/Bookings', bookingRouter); //re-routing to review router to handle
 
 //Middleware to restrict to admin only to all the rest of routes
 router.use(restrictTo('admin'));

@@ -16,7 +16,7 @@ const router = express.Router({ mergeParams: true }); //mergeParams allow to acc
 router.use(protect);
 router
   .route('/')
-  .get(getAllReviews)
+  .get(setTourUserIds, getAllReviews)
   .post(restrictTo('user'), setTourUserIds, createReview);
 router
   .route('/:id')

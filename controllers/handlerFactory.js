@@ -26,7 +26,7 @@ exports.updateOne = (Model) =>
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const newDoc = await Model.create(req.body);
-    console.log(newDoc);
+
     res.status(201).json({ status: 'Sucess', data: newDoc });
   });
 
@@ -47,6 +47,8 @@ exports.getAll = (Model) =>
     //To allow for nested GET reviews on tour
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
+    if (req.params.userId) filter = { user: req.params.userId };
+
     const features = new APIFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
