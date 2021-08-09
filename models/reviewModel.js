@@ -48,6 +48,9 @@ reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'user',
     select: 'name photo',
+  }).populate({
+    path: 'tour',
+    select: 'duration difficulty price ratingAverage imageCover',
   });
   next();
 });
