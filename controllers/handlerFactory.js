@@ -1,3 +1,4 @@
+const { listenerCount } = require('events');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
@@ -13,10 +14,22 @@ exports.deleteOne = (Model) =>
 
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, //new:true to return the updated doc not the old one
-      runValidators: true,
-    });
+    let doc;
+    if (req.body.images) {
+      doc = await Model.updateOne(
+        { _id: req.params.id },
+        { $addToSet: { images: { $each: req.body.images } } },
+        {
+          new: true, //new:true to return the updated doc not the old one
+          runValidators: true,
+        }
+      );
+    } else {
+      doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+        new: true, //new:true to return the updated doc not the old one
+        runValidators: true,
+      });
+    }
     if (!doc) {
       return next(new AppError('No doc found with this ID', 404));
     }

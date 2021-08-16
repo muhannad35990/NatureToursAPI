@@ -29,33 +29,34 @@ exports.uploadTourImages = upload.fields([
 ]);
 
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
-  if (!req.files.imageCover || !req.files.images) return next();
+  if (req.files.imageCover) {
+    //process cover image
+    req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
 
-  //process cover image
-  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+    await sharp(req.files.imageCover[0].buffer)
+      .resize(2000, 1333) //resize with cover option 3/2 ratio
+      .toFormat('jpeg') //convert to jpeg
+      .jpeg({ quality: 90 }) //compress
+      .toFile(`public/img/tours/${req.body.imageCover}`);
+  }
+  if (req.files.images) {
+    //process rest images array by loop
+    req.body.images = [];
+    //using promise to force it stop until all loop operations finish
+    await Promise.all(
+      req.files.images.map(async (file, i) => {
+        const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
 
-  await sharp(req.files.imageCover[0].buffer)
-    .resize(2000, 1333) //resize with cover option 3/2 ratio
-    .toFormat('jpeg') //convert to jpeg
-    .jpeg({ quality: 90 }) //compress
-    .toFile(`public/img/tours/${req.body.imageCover}`);
+        await sharp(file.buffer)
+          .resize(2000, 1333) //resize with cover option 3/2 ratio
+          .toFormat('jpeg') //convert to jpeg
+          .jpeg({ quality: 90 }) //compress
+          .toFile(`public/img/tours/${filename}`);
 
-  //process rest images array by loop
-  req.body.images = [];
-  //using promise to force it stop until all loop operations finish
-  await Promise.all(
-    req.files.images.map(async (file, i) => {
-      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
-      await sharp(file.buffer)
-        .resize(2000, 1333) //resize with cover option 3/2 ratio
-        .toFormat('jpeg') //convert to jpeg
-        .jpeg({ quality: 90 }) //compress
-        .toFile(`public/img/tours/${filename}`);
-
-      req.body.images.push(filename);
-    })
-  );
-
+        req.body.images.push(filename);
+      })
+    );
+  }
   next();
 });
 
