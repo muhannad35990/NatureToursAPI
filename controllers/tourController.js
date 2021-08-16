@@ -199,3 +199,22 @@ exports.getDistances = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteTourImage = catchAsync(async (req, res, next) => {
+  let doc;
+
+  if (req.params.img) {
+    doc = await Tour.updateOne(
+      { _id: req.params.id },
+      { $pull: { images: req.params.img } },
+      {
+        new: true, //new:true to return the updated doc not the old one
+        runValidators: true,
+      }
+    );
+  }
+  if (!doc) {
+    return next(new AppError('No doc found with this ID', 404));
+  }
+  res.status(200).json({ status: 'Sucess', data: { doc } });
+});
