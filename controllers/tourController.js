@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const multer = require('multer');
 const sharp = require('sharp');
 const Tour = require('../models/tourModel');
@@ -216,5 +218,11 @@ exports.deleteTourImage = catchAsync(async (req, res, next) => {
   if (!doc) {
     return next(new AppError('No doc found with this ID', 404));
   }
+  const path1 = path.join(
+    __dirname,
+    `\\..\\public\\img\\tours\\${req.params.img}`
+  );
+
+  fs.unlinkSync(path1);
   res.status(200).json({ status: 'Sucess', data: { doc } });
 });
