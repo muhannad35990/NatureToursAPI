@@ -13,6 +13,7 @@ const {
   resizeTourImages,
   uploadTourImages,
   deleteTourImage,
+  insertTourLocation,
 } = require('../controllers/tourController');
 const { protect, restrictTo } = require('../controllers/authController');
 const reviewRouter = require('./reviewRoutes');
@@ -59,4 +60,8 @@ router
 router
   .route('/:id/:img')
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTourImage);
+router
+  .route('/location/:id')
+  .patch(protect, restrictTo('admin', 'lead-guide'), insertTourLocation);
+
 module.exports = router;

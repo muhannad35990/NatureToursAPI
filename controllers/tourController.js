@@ -31,7 +31,7 @@ exports.uploadTourImages = upload.fields([
 ]);
 
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
-  if (req.files.imageCover) {
+  if (req.files && req.files.imageCover) {
     //process cover image
     req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
 
@@ -41,7 +41,7 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
       .jpeg({ quality: 90 }) //compress
       .toFile(`public/img/tours/${req.body.imageCover}`);
   }
-  if (req.files.images) {
+  if (req.files && req.files.images) {
     //process rest images array by loop
     req.body.images = [];
     //using promise to force it stop until all loop operations finish
@@ -224,5 +224,20 @@ exports.deleteTourImage = catchAsync(async (req, res, next) => {
   );
 
   fs.unlinkSync(path1);
+  res.status(200).json({ status: 'Sucess', data: { doc } });
+});
+exports.insertTourLocation = catchAsync(async (req, res, next) => {
+  let doc;
+  doc = await Tour.updateOne(
+    { _id: req.params.id },
+    { $push: req.body },
+    {
+      new: true, //new:true to return the updated doc not the old one
+      runValidators: true,
+    }
+  );
+  if (!doc) {
+    return next(new AppError('No doc found with this ID', 404));
+  }
   res.status(200).json({ status: 'Sucess', data: { doc } });
 });
