@@ -14,6 +14,7 @@ const {
   uploadTourImages,
   deleteTourImage,
   insertTourLocation,
+  deleteTourLocation,
 } = require('../controllers/tourController');
 const { protect, restrictTo } = require('../controllers/authController');
 const reviewRouter = require('./reviewRoutes');
@@ -62,6 +63,9 @@ router
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTourImage);
 router
   .route('/location/:id')
-  .patch(protect, restrictTo('admin', 'lead-guide'), insertTourLocation);
+  .post(protect, restrictTo('admin', 'lead-guide'), insertTourLocation);
+router
+  .route('/location/:id/:locId')
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTourLocation);
 
 module.exports = router;

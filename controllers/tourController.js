@@ -241,3 +241,19 @@ exports.insertTourLocation = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({ status: 'Sucess', data: { doc } });
 });
+
+exports.deleteTourLocation = catchAsync(async (req, res, next) => {
+  let doc;
+  doc = await Tour.updateOne(
+    { _id: req.params.id },
+    { $pull: { locations: { _id: req.params.locId } } },
+    {
+      new: true, //new:true to return the updated doc not the old one
+      runValidators: true,
+    }
+  );
+  if (!doc) {
+    return next(new AppError('No doc found with this ID', 404));
+  }
+  res.status(200).json({ status: 'Sucess', data: { doc } });
+});
