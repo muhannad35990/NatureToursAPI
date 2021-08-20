@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-let slugify = require('slugify');
+const slugify = require('slugify');
 // let  validator = require('validator');
 // const User = require('./userModel');
 
@@ -72,7 +72,6 @@ const tourSchema = new mongoose.Schema(
     },
     imageCover: {
       type: String,
-      required: [true, 'A tour must have cover iamge'],
     },
     images: [String],
     createdAt: {
@@ -184,7 +183,7 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-tourSchema.post(/^find/, function (docs, next) {
+tourSchema.post(/^find/, (docs, next) => {
   // console.log(docs);
   next();
 });
