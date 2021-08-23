@@ -15,9 +15,12 @@ class APIFeatures {
 
     //use regular expression to add $ to the filter
     queryObj = JSON.parse(
-      queryString.replace(/\b(gte|gt|lte|lt|ne|eq)\b/g, (match) => `$${match}`)
+      queryString.replace(
+        /\b(gte|gt|lte|lt|ne|eq|in|nin)\b/g,
+        (match) => `$${match}`
+      )
     );
-
+    console.log(queryObj);
     this.query = this.query.find(queryObj);
     return this;
   }
