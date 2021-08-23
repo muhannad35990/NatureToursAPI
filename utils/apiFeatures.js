@@ -15,7 +15,7 @@ class APIFeatures {
 
     //use regular expression to add $ to the filter
     queryObj = JSON.parse(
-      queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
+      queryString.replace(/\b(gte|gt|lte|lt|ne|eq)\b/g, (match) => `$${match}`)
     );
 
     this.query = this.query.find(queryObj);
