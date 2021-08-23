@@ -20,7 +20,6 @@ class APIFeatures {
         (match) => `$${match}`
       )
     );
-    console.log(queryObj);
     this.query = this.query.find(queryObj);
     return this;
   }
