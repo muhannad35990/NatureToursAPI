@@ -13,6 +13,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRouter');
 const reviewsRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 
 const app = express();
 
@@ -34,6 +35,13 @@ app.use('/api', limiter); //apply to urls start with api
 //allow cors on browser
 app.use(cors());
 app.options('*', cors()); // for complex requests
+
+//web hook body should read as raw so we put it before the json middleware that convert the body to json
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
 
 //body parser,reading data from body into req.body
 app.use(
