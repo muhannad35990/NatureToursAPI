@@ -21,8 +21,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // cancel_url: `${req.protocol}://${req.get('host')}/tour/${
     //   req.params.tourID
     // }`,
-    success_url: `${req.protocol}://localhost:3000/myBookings`,
-    cancel_url: `${req.protocol}://localhost:3000/tour/${req.params.tourID}`,
+    success_url: `${req.protocol}://https://priceless-bhabha-ff52c8.netlify.app/myBookings`,
+    cancel_url: `${req.protocol}://https://priceless-bhabha-ff52c8.netlify.app/tour/${req.params.tourID}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourID,
     line_items: [
