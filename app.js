@@ -32,7 +32,8 @@ const limiter = rateLimit({
 app.use('/api', limiter); //apply to urls start with api
 
 //allow cors on browser
-app.use(cors({ origin: '*' }));
+app.use(cors());
+app.options('*', cors()); // for complex requests
 
 //body parser,reading data from body into req.body
 app.use(
