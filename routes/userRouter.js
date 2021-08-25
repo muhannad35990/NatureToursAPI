@@ -45,7 +45,7 @@ router.delete('/deleteMe', deleteMe);
 router.get('/getMe', getMe, getUser);
 
 router.use('/:userId/reviews', reviewRouter); //re-routing to review router to handle
-router.use('/:userId/Bookings', bookingRouter); //re-routing to review router to handle
+router.use('/:userId/Bookings', bookingRouter); //re-routing to booking router to handle
 
 //Middleware to restrict to admin only to all the rest of routes
 router.use(restrictTo('admin'));

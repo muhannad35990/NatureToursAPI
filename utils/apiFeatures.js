@@ -10,7 +10,7 @@ class APIFeatures {
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    //advanced filtering gt gte lt lte
+    //advanced filtering gt gte lt lte ne eq in nin
     const queryString = JSON.stringify(queryObj);
 
     //use regular expression to add $ to the filter
