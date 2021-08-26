@@ -22,7 +22,7 @@ router
   .get(setTourUserIds, getAllBookings)
   .post(restrictTo('user'), createBooking);
 router
-  .route('/:tourID')
+  .route('/:id')
   .get(getBooking)
   .patch(restrictTo('user', 'admin'), updateBooking)
   .delete(restrictTo('user', 'admin'), deleteBooking);
