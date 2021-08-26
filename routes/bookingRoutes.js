@@ -16,7 +16,7 @@ router.use(protect);
 
 router.route('/checkout-session/:tourID').post(getCheckoutSession);
 
-router.use(restrictTo('lead-guide', 'admin'));
+router.use(restrictTo('lead-guide', 'admin', 'user'));
 router
   .route('/')
   .get(setTourUserIds, getAllBookings)
