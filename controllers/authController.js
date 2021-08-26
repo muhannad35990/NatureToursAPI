@@ -242,8 +242,13 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
       const user = await User.findById(req.user.id).select('+password');
 
       //check if posted current password is correct
-      if (!user.correctPassword(passwordCurrent, user.password))
-        return next(new AppError('Your current password is incorrect', 401));
+      const isPassCorrect = await user.correctPassword(
+        passwordCurrent,
+        user.password
+      );
+
+      if (!isPassCorrect)
+        return next(new AppError('Your current password is incorrect', 400));
 
       //update the password
       user.password = password;
@@ -258,8 +263,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   } catch (err) {
     return next(
       new AppError(
-        'there an error while changing the password,check the data and try again' +
-          err,
+        `there an error while changing the password,check the data and try again${err}`,
         500
       )
     );
