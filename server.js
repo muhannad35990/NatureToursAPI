@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 
 //catching uncaught exceptions to listen at the begining to the whole app
 process.on('uncaughtException', (err) => {
+  console.log(err);
   console.log(err.name, err.message);
   console.log('uncaught Rejection!💥 Shutting down ...');
   process.exit(1);
