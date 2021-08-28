@@ -12,6 +12,7 @@ process.on('uncaughtException', (err) => {
 const app = require('./app');
 
 dotenv.config({ path: './config.env' });
+const passportSetup = require('./utils/passportSetup');
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',

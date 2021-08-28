@@ -14,7 +14,6 @@ const userRouter = require('./routes/userRouter');
 const reviewsRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const bookingController = require('./controllers/bookingController');
-const passportSetup = require('./utils/passportSetup');
 
 const app = express();
 
