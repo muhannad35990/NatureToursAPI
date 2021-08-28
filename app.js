@@ -33,9 +33,14 @@ const limiter = rateLimit({
 app.use('/api', limiter); //apply to urls start with api
 
 //allow cors on browser
-app.use(cors());
-app.options('*', cors()); // for complex requests
+// app.use(cors());
+// app.options('*', cors()); // for complex requests
+const corsOptions = {
+  origin: '*',
+  credentials: true,
+};
 
+app.use(cors(corsOptions));
 //web hook body should read as raw so we put it before the json middleware that convert the body to json
 app.post(
   '/webhook-checkout',
