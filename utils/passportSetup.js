@@ -8,8 +8,7 @@ passport.use(
       clientID:
         '714452005953-qncn8a23o4k14h8te5jrvnum4mqdsukm.apps.googleusercontent.com',
       clientSecret: 'UySdjmtsiPFgbvEATO_3WsV4',
-      callbackURL:
-        'https://whispering-mesa-68369.herokuapp.com/api/v1/users/google/redirect',
+      callbackURL: 'http://localhost:3002/api/v1/users/google/redirect',
       proxy: true,
     },
     (accessToken, refreshToken, profile, done) => {

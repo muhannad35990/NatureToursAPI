@@ -63,19 +63,9 @@ router.get(
       }
     );
 
-    //generate new token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-    //send the token to client if everything is ok
-    user.password = undefined; //remove the password
-    res.status(200).json({
-      status: 'success',
-      message: 'user logged in successfully',
-      token,
-      refreshToken,
-      user: doc,
-    });
+    res.cookie('refreshToken', refreshToken, { maxAge: 2592000000 });
+
+    res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
   }
 );
 
