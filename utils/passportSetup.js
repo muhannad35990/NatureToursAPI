@@ -35,6 +35,7 @@ passport.use(
       if (!user) {
         user = await User.create(newUser);
       }
+
       done(null, user);
     }
   )

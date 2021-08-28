@@ -38,7 +38,6 @@ router.get(
   '/google/redirect',
   passport.authenticate('google', {
     failureRedirect: '/login',
-
     session: false,
   }),
   async (req, res) => {
@@ -58,8 +57,11 @@ router.get(
         new: true,
       }
     );
-    res.cookie('refreshToken', refreshToken, { maxAge: 2592000000 });
-    res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: false,
+      maxAge: 2592000000,
+    });
+    res.send('successfully authorized!');
   }
 );
 // called to authenticate using Google-oauth2.0
@@ -91,7 +93,10 @@ router.get(
         new: true,
       }
     );
-    res.cookie('refreshToken', refreshToken, { maxAge: 2592000000 });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: false,
+      maxAge: 2592000000,
+    });
     res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
   }
 );
