@@ -11,7 +11,7 @@ passport.use(
       callbackURL: 'http://localhost:3002/api/v1/users/google/redirect',
       proxy: true,
     },
-    (accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       const name = profile.displayName;
       const FirstName = profile.name.givenName;
       const LastName = profile.name.familyName;
@@ -30,7 +30,12 @@ passport.use(
         passwordConfirm,
         photo,
       };
-      User.findOrCreate(newUser, (err, user) => done(err, user));
+      let user;
+      user = await User.findOne({ googleId: googleId });
+      if (!user) {
+        user = await User.create(newUser);
+      }
+      done(null, user);
     }
   )
 );

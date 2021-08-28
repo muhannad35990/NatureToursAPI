@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const findOrCreate = require('mongoose-findorcreate');
 
 const userSchema = new mongoose.Schema({
   googleId: {
@@ -138,6 +137,6 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //after 10 min
   return resetToken; //send non encrypted token to th email
 };
-userSchema.plugin(findOrCreate);
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;
