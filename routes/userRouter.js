@@ -61,7 +61,7 @@ router.get(
       httpOnly: false,
       maxAge: 2592000000,
     });
-    res.send('successfully authorized!');
+    return res.redirect(process.env.CLIENT_REDIRECT);
   }
 );
 // called to authenticate using Google-oauth2.0
