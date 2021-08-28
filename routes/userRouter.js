@@ -32,10 +32,7 @@ const router = express.Router();
 // called to authenticate using Google-oauth2.0
 router.get(
   '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }),
-  (req, res) => {
-    console.log('in the goolge req:', req, 'res:', res);
-  }
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 router.get(
   '/google/redirect',
@@ -53,7 +50,6 @@ router.get(
         expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
       }
     );
-
     //save refresh token in the database
     const doc = await User.findByIdAndUpdate(
       user._id,
@@ -62,13 +58,43 @@ router.get(
         new: true,
       }
     );
-
     res.cookie('refreshToken', refreshToken, { maxAge: 2592000000 });
-
     res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
   }
 );
+// called to authenticate using Google-oauth2.0
+router.get(
+  '/facebook',
+  passport.authenticate('facebook', { scope: ['profile'] })
+);
+router.get(
+  '/facebook/redirect',
+  passport.authenticate('facebook', {
+    failureRedirect: '/login',
 
+    session: false,
+  }),
+  async (req, res) => {
+    const { user } = req;
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+      }
+    );
+    //save refresh token in the database
+    const doc = await User.findByIdAndUpdate(
+      user._id,
+      { refreshToken: refreshToken },
+      {
+        new: true,
+      }
+    );
+    res.cookie('refreshToken', refreshToken, { maxAge: 2592000000 });
+    res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
+  }
+);
 router.post('/signup', signup);
 router.post('/login', login);
 
