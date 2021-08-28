@@ -60,6 +60,7 @@ router.get(
     res.cookie('refreshToken', refreshToken, {
       httpOnly: false,
       maxAge: 2592000000,
+      domain: 'https://natural-tours.netlify.app',
     });
     // res.redirect(process.env.CLIENT_REDIRECT);
     res.send('success');
