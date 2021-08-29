@@ -57,13 +57,13 @@ router.get(
         new: true,
       }
     );
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: false,
-      maxAge: 2592000000,
-      domain: 'https://natural-tours.netlify.app',
-    });
-    // res.redirect(process.env.CLIENT_REDIRECT);
-    res.send('success');
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: false,
+    //   maxAge: 2592000000,
+    //   domain: 'https://natural-tours.netlify.app',
+    // });
+    res.redirect(`${process.env.CLIENT_REDIRECT}/${refreshToken}`);
+    // res.send('success');
   }
 );
 // called to authenticate using Google-oauth2.0
