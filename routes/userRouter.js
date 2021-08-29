@@ -46,7 +46,7 @@ router.get(
 // called to authenticate using Google-oauth2.0
 router.get(
   '/facebook',
-  passport.authenticate('facebook', { scope: ['profile'] })
+  passport.authenticate('facebook', { scope: ['email'] })
 );
 router.get(
   '/facebook/redirect',

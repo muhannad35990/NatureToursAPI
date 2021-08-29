@@ -31,7 +31,16 @@ passport.use(
         photo,
       };
       let user;
-      user = await User.findOne({ googleId: googleId });
+      user = await User.findOne({
+        $or: [
+          {
+            googleId: googleId,
+          },
+          {
+            email: email,
+          },
+        ],
+      });
       if (!user) {
         user = await User.create(newUser);
       }
@@ -46,7 +55,7 @@ passport.use(
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: process.env.FACEBOOK_CALLBACK,
-      profileFields: ['email', 'name'],
+      profileFields: ['id', 'displayName', 'name', 'emails', 'photos'],
       proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -69,7 +78,16 @@ passport.use(
         photo,
       };
       let user;
-      user = await User.findOne({ facebookId: facebookId });
+      user = await User.findOne({
+        $or: [
+          {
+            facebookId: facebookId,
+          },
+          {
+            email: email,
+          },
+        ],
+      });
       if (!user) {
         user = await User.create(newUser);
       }
