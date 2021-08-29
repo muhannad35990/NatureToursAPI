@@ -1,10 +1,10 @@
 const multer = require('multer');
 const sharp = require('sharp');
+const jwt = require('jsonwebtoken');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
-
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
 //     //path to where to save user images , if not specified path it will save it in the memory
@@ -96,6 +96,25 @@ exports.createUser = (req, res) => {
     message: 'This route is not defined! please uesr /signUp instead',
   });
 };
+exports.OAuthRedirection = catchAsync(async (req, res, next) => {
+  const { user } = req;
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+    }
+  );
+  //save refresh token in the database
+  const doc = await User.findByIdAndUpdate(
+    user._id,
+    { refreshToken: refreshToken },
+    {
+      new: true,
+    }
+  );
+  res.redirect(`${process.env.CLIENT_REDIRECT}/${refreshToken}`);
+});
 
 exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User); //you can add select in the populte obejct

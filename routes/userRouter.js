@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
+
 const {
   signup,
   login,
@@ -22,6 +22,7 @@ const {
   getMe,
   uploadUserPhoto,
   resizeUserPhoto,
+  OAuthRedirection,
 } = require('../controllers/userController');
 const reviewRouter = require('./reviewRoutes');
 const bookingRouter = require('./bookingRoutes');
@@ -40,31 +41,7 @@ router.get(
     failureRedirect: '/login',
     session: false,
   }),
-  async (req, res) => {
-    const { user } = req;
-    const refreshToken = jwt.sign(
-      { id: user._id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-      }
-    );
-    //save refresh token in the database
-    const doc = await User.findByIdAndUpdate(
-      user._id,
-      { refreshToken: refreshToken },
-      {
-        new: true,
-      }
-    );
-    // res.cookie('refreshToken', refreshToken, {
-    //   httpOnly: false,
-    //   maxAge: 2592000000,
-    //   domain: 'https://natural-tours.netlify.app',
-    // });
-    res.redirect(`${process.env.CLIENT_REDIRECT}/${refreshToken}`);
-    // res.send('success');
-  }
+  OAuthRedirection
 );
 // called to authenticate using Google-oauth2.0
 router.get(
@@ -78,29 +55,7 @@ router.get(
 
     session: false,
   }),
-  async (req, res) => {
-    const { user } = req;
-    const refreshToken = jwt.sign(
-      { id: user._id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-      }
-    );
-    //save refresh token in the database
-    const doc = await User.findByIdAndUpdate(
-      user._id,
-      { refreshToken: refreshToken },
-      {
-        new: true,
-      }
-    );
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: false,
-      maxAge: 2592000000,
-    });
-    res.send('YOU HAVE LOGGED IN SUCCESSFULLY');
-  }
+  OAuthRedirection
 );
 router.post('/signup', signup);
 router.post('/login', login);
