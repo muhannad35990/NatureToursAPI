@@ -68,6 +68,11 @@ exports.aliasTopTours = (req, res, next) => {
   // req.query.fields = 'name,price,ratingAverage,summary,difficulty';
   next();
 };
+exports.aliasTopToursExpense = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = 'ratingAverage,price';
+  next();
+};
 
 exports.getAllTours = factory.getAll(Tour);
 exports.getTour = factory.getOne(Tour, { path: 'reviews' }); //you can add select in the populte obejct

@@ -6,6 +6,7 @@ const {
   getTour,
   deleteTour,
   aliasTopTours,
+  aliasTopToursExpense,
   getTourStats,
   getMonthlyPlan,
   getToursWithIn,
@@ -28,6 +29,7 @@ const router = express.Router();
 router.use('/:tourId/reviews', reviewRouter); //re-routing to review router to handle
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
+router.route('/top-5-expense').get(aliasTopToursExpense, getAllTours);
 router.route('/tour-stats').get(getTourStats);
 router
   .route('/monthly-plan/:year')
