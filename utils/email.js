@@ -53,7 +53,7 @@ module.exports = class Email {
   async send(template, subject) {
     //render HTML based on template
     const html = await ejs.renderFile(
-      `${__dirname}\\..\\views\\email\\${template}.ejs`,
+      `${__dirname}/../views/email/${template}.ejs`,
       {
         firstName: this.firstName,
         url: this.url,
