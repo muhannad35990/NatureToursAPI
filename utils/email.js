@@ -87,7 +87,7 @@ module.exports = class Email {
   }
 
   async sendPasswordReset() {
-    return await this.send(
+    await this.send(
       'passwordReset',
       'Your Password Reset Token(valid for only 10 minutes)'
     );
