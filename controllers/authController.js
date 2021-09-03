@@ -45,7 +45,8 @@ exports.signup = catchAsync(async (req, res, next) => {
   //in production
   // const url = `${req.protocol}://${req.get('host')}/me`;
   //in local
-  const url = `http://localhost:3001/me`;
+
+  const url = `${process.env.FRONT_END_URL}/me`;
   await new Email(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, 'user created successfully', res);
@@ -187,7 +188,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     // )}/api/v1/users/resetPassword/${resetToken}`;
 
     //for local
-    const resetURL = `http://localhost:3001/resetPassword/${resetToken}`;
+    const resetURL = `${process.env.FRONT_END_URL}/resetPassword/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
 
