@@ -2,6 +2,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('../models/userModel');
+const Email = require('./email');
 
 passport.use(
   new GoogleStrategy(
@@ -43,6 +44,8 @@ passport.use(
       });
       if (!user) {
         user = await User.create(newUser);
+        const url = `${process.env.FRONT_END_URL}/me`;
+        await new Email(user, url).sendWelcome();
       }
 
       done(null, user);
@@ -88,8 +91,11 @@ passport.use(
           },
         ],
       });
+
       if (!user) {
         user = await User.create(newUser);
+        const url = `${process.env.FRONT_END_URL}/me`;
+        await new Email(user, url).sendWelcome();
       }
       done(null, user);
     }

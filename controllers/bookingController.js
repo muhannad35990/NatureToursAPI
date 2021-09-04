@@ -21,8 +21,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // cancel_url: `${req.protocol}://${req.get('host')}/tour/${
     //   req.params.tourID
     // }`,
-    success_url: `${req.protocol}://${process.env.FRONT_END_URL}/myBookings`,
-    cancel_url: `${req.protocol}://${process.env.FRONT_END_URL}/tour/${req.params.tourID}`,
+    success_url: `${process.env.FRONT_END_URL}/myBookings`,
+    cancel_url: `${process.env.FRONT_END_URL}/tour/${req.params.tourID}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourID,
     line_items: [

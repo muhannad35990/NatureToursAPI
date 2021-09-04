@@ -42,10 +42,6 @@ const createSendToken = async (user, statusCode, message, res) => {
 };
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-  //in production
-  // const url = `${req.protocol}://${req.get('host')}/me`;
-  //in local
-
   const url = `${process.env.FRONT_END_URL}/me`;
   await new Email(newUser, url).sendWelcome();
 

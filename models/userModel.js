@@ -94,7 +94,7 @@ userSchema.pre(/^find/, function (next) {
 });
 userSchema.pre(/^findOneAnd/, async function (next) {
   //Encrypt refresh Token
-  if (this._update.refreshToken)
+  if (this?._update?.refreshToken)
     this._update.refreshToken = await bcrypt.hash(
       this._update.refreshToken,
       12
