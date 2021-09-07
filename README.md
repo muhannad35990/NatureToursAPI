@@ -1,4 +1,32 @@
-# NatureToursAPI
-an API in node.js to nature tours 
- #nodejs #express #mongodb #mongoose #REST #MVC #JWT #stripe #OAuth #passportjs #multer
-not finished yet
+Features:
+- CRUD on tours, users, bookings, reviews.
+- Authentication using Jwt web tokens and refresh tokens.
+- Change password and reset password using email.
+- Uploading images and processing them.
+- Credit Card Payments with Stripe.
+- Preventing Parameter Pollution in monogodb.
+- Data sanitization against NOSQL query injection and XSS.
+- Limiting number of requests to the backend from IP address by time to protect against DOS attack.
+- Compress all text sent to the client.
+
+ 
+- backend:
+- #NodeJs
+- #Express
+- #Mongodb, #Middlewares.
+- #REST #API , #MVC
+- #JWT web tokens, refresh tokens
+- #Stripe.
+- #express-mongo-sanitize.
+- #express-rate-limit.
+- #xss-clean
+- #Hpp.
+- #Compression.
+- #CORS
+- #Oauth, Passportjs
+- #Reset password by email (EJS template).
+- #upload-images.
+- #Error-handling.
+- #Eslint.
+- #Webhooks.
+- #Heroku.
